@@ -5,8 +5,8 @@ servers = [
     {
         :name => "k8s-master",
         :type => "master",
-        :box => "ubuntu/bionic64",
-        :box_version => "20190604.0.0",
+        :box => "ubuntu/xenial64",
+        :box_version => "20190530.3.0",
         :eth1 => "192.168.205.10",
         :mem => "2048",
         :cpu => "2"
@@ -14,8 +14,8 @@ servers = [
     {
         :name => "k8s-node-1",
         :type => "node",
-        :box => "ubuntu/bionic64",
-        :box_version => "20190604.0.0",
+        :box => "ubuntu/xenial64",
+        :box_version => "20190530.3.0",
         :eth1 => "192.168.205.11",
         :mem => "2048",
         :cpu => "2"
@@ -23,8 +23,8 @@ servers = [
     {
         :name => "k8s-node-2",
         :type => "node",
-        :box => "ubuntu/bionic64",
-        :box_version => "20190604.0.0",
+        :box => "ubuntu/xenial64",
+        :box_version => "20190530.3.0",
         :eth1 => "192.168.205.12",
         :mem => "2048",
         :cpu => "2"
