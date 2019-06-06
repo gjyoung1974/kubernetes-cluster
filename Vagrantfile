@@ -28,6 +28,15 @@ servers = [
         :eth1 => "192.168.205.12",
         :mem => "2048",
         :cpu => "2"
+    },
+    {
+        :name => "bastion",
+        :type => "none",
+        :box => "ubuntu/xenial64",
+        :box_version => "20190530.3.0",
+        :eth1 => "192.168.205.15",
+        :mem => "2048",
+        :cpu => "2"
     }
 ]
 
