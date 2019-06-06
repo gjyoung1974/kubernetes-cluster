@@ -1,5 +1,6 @@
 # Kubernetes cluster
-A vagrant script for setting up a Kubernetes cluster using Kubeadm
+- Set up a very basic local Kubernetes cluster using Kubeadm
+- For testing k8s infra components
 
 ## Pre-requisites
 
