@@ -3,7 +3,7 @@
 
 servers = [
     {
-        :name => "k8s-head",
+        :name => "k8s-master",
         :type => "master",
         :box => "ubuntu/xenial64",
         :box_version => "20180831.0.0",
@@ -84,8 +84,8 @@ $configureMaster = <<-SCRIPT
 
     # install Calico pod network addon
     export KUBECONFIG=/etc/kubernetes/admin.conf
-    kubectl apply -f https://raw.githubusercontent.com/ecomm-integration-ballerina/kubernetes-cluster/master/calico/rbac-kdd.yaml
-    kubectl apply -f https://raw.githubusercontent.com/ecomm-integration-ballerina/kubernetes-cluster/master/calico/calico.yaml
+    kubectl apply -f https://raw.githubusercontent.com/gjyoung1974/kubernetes-cluster/master/calico/rbac-kdd.yaml
+    kubectl apply -f https://raw.githubusercontent.com/gjyoung1974/kubernetes-cluster/master/calico/calico.yaml
 
     kubeadm token create --print-join-command >> /etc/kubeadm_join_cmd.sh
     chmod +x /etc/kubeadm_join_cmd.sh
@@ -116,7 +116,7 @@ Vagrant.configure("2") do |config|
             config.vm.provider "virtualbox" do |v|
 
                 v.name = opts[:name]
-            	 v.customize ["modifyvm", :id, "--groups", "/Ballerina Development"]
+            	 v.customize ["modifyvm", :id, "--groups", "/K8s Development"]
                 v.customize ["modifyvm", :id, "--memory", opts[:mem]]
                 v.customize ["modifyvm", :id, "--cpus", opts[:cpu]]
 
