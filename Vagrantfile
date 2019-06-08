@@ -6,35 +6,26 @@ servers = [
         :name => "k8s-master",
         :type => "master",
         :box => "ubuntu/xenial64",
-        :box_version => "20190530.3.0",
+        :box_version => "20180831.0.0",
         :eth1 => "192.168.205.10",
         :mem => "2048",
         :cpu => "2"
     },
     {
-        :name => "k8s-node-1",
+        :name => "k8s-node01",
         :type => "node",
         :box => "ubuntu/xenial64",
-        :box_version => "20190530.3.0",
+        :box_version => "20180831.0.0",
         :eth1 => "192.168.205.11",
         :mem => "2048",
         :cpu => "2"
     },
     {
-        :name => "k8s-node-2",
+        :name => "k8s-node02",
         :type => "node",
         :box => "ubuntu/xenial64",
-        :box_version => "20190530.3.0",
+        :box_version => "20180831.0.0",
         :eth1 => "192.168.205.12",
-        :mem => "2048",
-        :cpu => "2"
-    },
-    {
-        :name => "bastion",
-        :type => "none",
-        :box => "ubuntu/xenial64",
-        :box_version => "20190530.3.0",
-        :eth1 => "192.168.205.15",
         :mem => "2048",
         :cpu => "2"
     }
@@ -125,7 +116,7 @@ Vagrant.configure("2") do |config|
             config.vm.provider "virtualbox" do |v|
 
                 v.name = opts[:name]
-            	 v.customize ["modifyvm", :id, "--groups", "/K8s Development"]
+            	 v.customize ["modifyvm", :id, "--groups", "/k8s-development"]
                 v.customize ["modifyvm", :id, "--memory", opts[:mem]]
                 v.customize ["modifyvm", :id, "--cpus", opts[:cpu]]
 
