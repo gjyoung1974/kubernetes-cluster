@@ -31,11 +31,13 @@ servers = [
     }
 ]
 
-# This script to install k8s using kubeadm will get executed after a box is provisioned
+# This script installs Kubernetes via kubeadm after each box gets provisioned
 $configureBox = <<-SCRIPT
 
     # install docker v17.03
-    # reason for not using docker provision is that it always installs latest version of the docker, but kubeadm requires 17.03 or older
+    # don't use "docker provision" as kubeadm requires 17.03 or older << manually install  v17.03
+
+    ## Install updates
     apt-get update
     apt-get install -y apt-transport-https ca-certificates curl software-properties-common
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
