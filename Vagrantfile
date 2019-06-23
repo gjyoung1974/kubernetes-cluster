@@ -1,6 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# Create a 1 master, 2 worker node cluster:
 servers = [
     {
         :name => "k8s-master",
