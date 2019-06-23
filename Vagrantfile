@@ -96,7 +96,7 @@ SCRIPT
 $configureMaster = <<-SCRIPT
 
     echo "This is the master"
-    ip of this box
+    # ip of this box
     IP_ADDR=`ifconfig eth0 | grep Mask | awk '{print $2}'| cut -f2 -d:`
 
     # install k8s master
@@ -118,17 +118,17 @@ $configureMaster = <<-SCRIPT
     sudo service sshd restart   
     systemctl restart sshd.service
 
-    sudo kubeadm token create --print-join-command >> /tmp/kubeadm_join_cmd.sh
-    chmod +x /tmp/kubeadm_join_cmd.sh
+    kubeadm token create --print-join-command >> ./kubeadm_join_cmd.sh
+    chmod +x ./kubeadm_join_cmd.sh
 
 SCRIPT
 
 $configureNode = <<-SCRIPT
     echo "This is a worker"
 
-    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.122.50:/tmp/kubeadm_join_cmd.sh .kubeadm_join_cmd.sh
-    sudo chmod +x ./kubeadm_join_cmd.sh
-    sudo sh ./kubeadm_join_cmd.sh
+    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.122.50:~/kubeadm_join_cmd.sh ./kubeadm_join_cmd.sh
+    chmod +x ./kubeadm_join_cmd.sh
+    sh ./kubeadm_join_cmd.sh
 
     SCRIPT
 
