@@ -34,8 +34,10 @@ servers = [
 # This script installs Kubernetes via kubeadm after each box gets provisioned
 $configureBox = <<-SCRIPT
 
+    # stop packages.cloud.google.com from transiting via
     sysctl -w net.ipv6.conf.all.disable_ipv6=1
     sysctl -w net.ipv6.conf.default.disable_ipv6=1
+    echo "ip_resolve=4" >> /etc/yum.conf
 
     ## Install updates
     rpm --import https://download.docker.com/linux/centos/gpg
