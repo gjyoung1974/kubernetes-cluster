@@ -5,57 +5,80 @@ servers = [
     {
         :name => "k8s-master",
         :type => "master",
-        :box => "ubuntu/xenial64",
-        :box_version => "20190530.3.0",
-        :eth1 => "192.168.205.10",
+        :box => "centos/7",
+        :box_version => "1902.01",
+        :eth0 => "192.168.122.50",
         :mem => "2048",
         :cpu => "2"
     },
     {
         :name => "k8s-node01",
         :type => "node",
-        :box => "ubuntu/xenial64",
-        :box_version => "20190530.3.0",
-        :eth1 => "192.168.205.11",
+        :box => "centos/7",
+        :box_version => "1902.01",
+        :eth0 => "192.168.122.100",
         :mem => "2048",
         :cpu => "2"
     },
     {
         :name => "k8s-node02",
         :type => "node",
-        :box => "ubuntu/xenial64",
-        :box_version => "20190530.3.0",
-        :eth1 => "192.168.205.12",
+        :box => "centos/7",
+        :box_version => "1902.01",
+        :eth0 => "192.168.122.150",
         :mem => "2048",
         :cpu => "2"
     }
 ]
 
+
+# kubeadm token create --print-join-command >> /etc/kubeadm_join_cmd.sh
+# chmod +x /etc/kubeadm_join_cmd.sh
+
+
 # This script installs Kubernetes via kubeadm after each box gets provisioned
 $configureBox = <<-SCRIPT
 
-    # install docker v17.03
-    # don't use "docker provision" as kubeadm requires 17.03 or older << manually install  v17.03
-
     ## Install updates
-    apt-get update
-    apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-    add-apt-repository "deb https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable"
-    apt-get update && apt-get install -y docker-ce=$(apt-cache madison docker-ce | grep 17.03 | head -1 | awk '{print $3}')
+    rpm --import https://download.docker.com/linux/centos/gpg
+    yum -y clean all
+    yum -y update
+    yum install -y yum-utils device-mapper-persistent-data lvm2 net-tools sshpass openssh-server
+  
+    sudo sed -i "s/.*PasswordAuthentication.*/PasswordAuthentication yes/g" /etc/ssh/sshd_config
+    systemctl enable sshd.servicekubectl get nodes
+    systemctl restart sshd.service
+
+    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    yum -y install docker-ce docker-ce-cli containerd.io
 
     # run docker commands as vagrant user (sudo not required)
     usermod -aG docker vagrant
+    systemctl enable docker.service
+    systemctl start docker
 
-    # install kubeadm
-    apt-get install -y apt-transport-https curl
-    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-    cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
-    deb http://apt.kubernetes.io/ kubernetes-xenial main
+    rpm --import https://packages.cloud.google.com/yum/doc/yum-key.gpg
+
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
-    apt-get update
-    apt-get install -y kubelet kubeadm kubectl
-    apt-mark hold kubelet kubeadm kubectl
+    #install kubernetes tools
+    yum -y update
+    yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+
+    # Set SELinux in permissive mode (effectively disabling it)
+    setenforce 0
+    sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+    
+    # enable kubelet
+    systemctl enable --now kubelet
 
     # kubelet requires swap off
     swapoff -a
@@ -64,22 +87,23 @@ EOF
     sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
     # ip of this box
-    IP_ADDR=`ifconfig enp0s8 | grep Mask | awk '{print $2}'| cut -f2 -d:`
-    # set node-ip
+    IP_ADDR=`ifconfig eth0 | grep Mask | awk '{print $2}'| cut -f2 -d:`
+    set node-ip
     sudo sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR" /etc/default/kubelet
     sudo systemctl restart kubelet
 SCRIPT
 
 $configureMaster = <<-SCRIPT
-    echo "This is master"
-    # ip of this box
-    IP_ADDR=`ifconfig enp0s8 | grep Mask | awk '{print $2}'| cut -f2 -d:`
+
+    echo "This is the master"
+    ip of this box
+    IP_ADDR=`ifconfig eth0 | grep Mask | awk '{print $2}'| cut -f2 -d:`
 
     # install k8s master
     HOST_NAME=$(hostname -s)
     kubeadm init --apiserver-advertise-address=$IP_ADDR --apiserver-cert-extra-sans=$IP_ADDR  --node-name $HOST_NAME --pod-network-cidr=172.16.0.0/16
 
-    #copying credentials to regular user - vagrant
+    # copying credentials to regular user - vagrant
     sudo --user=vagrant mkdir -p /home/vagrant/.kube
     cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
     chown $(id -u vagrant):$(id -g vagrant) /home/vagrant/.kube/config
@@ -89,21 +113,24 @@ $configureMaster = <<-SCRIPT
     kubectl apply -f https://raw.githubusercontent.com/gjyoung1974/kubernetes-cluster/master/calico/rbac-kdd.yaml
     kubectl apply -f https://raw.githubusercontent.com/gjyoung1974/kubernetes-cluster/master/calico/calico.yaml
 
+    # required for setting up passwordless ssh between guest VMs
+    sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
+    sudo service sshd restart   
+    systemctl restart sshd.service
+
     kubeadm token create --print-join-command >> /etc/kubeadm_join_cmd.sh
     chmod +x /etc/kubeadm_join_cmd.sh
-
-    # required for setting up password less ssh between guest VMs
-    sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
-    sudo service sshd restart
 
 SCRIPT
 
 $configureNode = <<-SCRIPT
-    echo "This is worker"
-    apt-get install -y sshpass
-    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.205.10:/etc/kubeadm_join_cmd.sh .
-    sh ./kubeadm_join_cmd.sh
-SCRIPT
+    echo "This is a worker"
+
+    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.122.50:/etc/kubeadm_join_cmd.sh .kubeadm_join_cmd.sh
+    sudo chmod +x ./kubeadm_join_cmd.sh
+    sudo sh ./kubeadm_join_cmd.sh
+
+    SCRIPT
 
 Vagrant.configure("2") do |config|
 
@@ -113,19 +140,19 @@ Vagrant.configure("2") do |config|
             config.vm.box = opts[:box]
             config.vm.box_version = opts[:box_version]
             config.vm.hostname = opts[:name]
-            config.vm.network :private_network, ip: opts[:eth1]
 
-            config.vm.provider "virtualbox" do |v|
+            config.vm.network "private_network", type: "bridge",
+            dev: "virbr0",
+            mode: "nat",
+            network_name: "default", ip: opts[:eth0]
 
-                v.name = opts[:name]
-            	 v.customize ["modifyvm", :id, "--groups", "/k8s-development"]
-                v.customize ["modifyvm", :id, "--memory", opts[:mem]]
-                v.customize ["modifyvm", :id, "--cpus", opts[:cpu]]
-
-            end
-
-            # we cannot use this because we can't install the docker version we want - https://github.com/hashicorp/vagrant/issues/4871
-            #config.vm.provision "docker"
+                config.vm.provider :libvirt do |domain|
+                    domain.memory = 2048
+                    domain.cpus = 2
+                    domain.nested = true
+                    domain.volume_cache = 'none'
+                    
+                end
 
             config.vm.provision "shell", inline: $configureBox
 
