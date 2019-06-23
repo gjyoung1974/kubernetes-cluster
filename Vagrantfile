@@ -54,8 +54,8 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
         https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
     #install kubernetes tools
-    yum -y update
     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    yum -y update
     yum install -y yum-utils device-mapper-persistent-data lvm2 net-tools sshpass openssh-server install docker-ce docker-ce-cli containerd.io
 
     # required for setting up passwordless ssh between guest VMs
@@ -127,9 +127,8 @@ SCRIPT
 $configureNode = <<-SCRIPT
     echo "This is a worker"
 
-    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.122.50:~/kubeadm_join_cmd.sh ./kubeadm_join_cmd.sh
-    chmod +x ./kubeadm_join_cmd.sh
-    sh ./kubeadm_join_cmd.sh
+    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.122.50:~/kubeadm_join_cmd.sh   .
+    sudo sh ./kubeadm_join_cmd.sh
 
     SCRIPT
 
