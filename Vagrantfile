@@ -1,7 +1,6 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# Create a 1 master, 2 worker node cluster:
 servers = [
     {
         :name => "k8s-master",
@@ -35,7 +34,7 @@ servers = [
 # This script installs Kubernetes via kubeadm after each box gets provisioned
 $configureBox = <<-SCRIPT
 
-    # stop packages.cloud.google.com from transiting via ipv6
+    # stop packages.cloud.google.com from transiting via
     sysctl -w net.ipv6.conf.all.disable_ipv6=1
     sysctl -w net.ipv6.conf.default.disable_ipv6=1
     echo "ip_resolve=4" >> /etc/yum.conf
@@ -134,10 +133,10 @@ echo "This is a worker"
 
     #configure kubectl
     mkdir ~/.kube
-    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@k8s-master:~/.kube/config .kube/config
+    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.122.50:~/.kube/config .kube/config
     
     # join a worker node to the cluster
-    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@k8s-master:~/kubeadm_join_cmd.sh .
+    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.122.50:~/kubeadm_join_cmd.sh .
     sudo sh ./kubeadm_join_cmd.sh
 
 SCRIPT
