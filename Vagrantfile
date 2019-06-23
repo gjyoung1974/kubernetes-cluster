@@ -118,15 +118,15 @@ $configureMaster = <<-SCRIPT
     sudo service sshd restart   
     systemctl restart sshd.service
 
-    kubeadm token create --print-join-command >> /etc/kubeadm_join_cmd.sh
-    chmod +x /etc/kubeadm_join_cmd.sh
+    sudo kubeadm token create --print-join-command >> /tmp/kubeadm_join_cmd.sh
+    chmod +x /tmp/kubeadm_join_cmd.sh
 
 SCRIPT
 
 $configureNode = <<-SCRIPT
     echo "This is a worker"
 
-    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.122.50:/etc/kubeadm_join_cmd.sh .kubeadm_join_cmd.sh
+    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.122.50:/tmp/kubeadm_join_cmd.sh .kubeadm_join_cmd.sh
     sudo chmod +x ./kubeadm_join_cmd.sh
     sudo sh ./kubeadm_join_cmd.sh
 
