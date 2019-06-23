@@ -44,7 +44,10 @@ $configureBox = <<-SCRIPT
     yum -y clean all
     yum -y update
     yum install -y yum-utils device-mapper-persistent-data lvm2 net-tools sshpass openssh-server
-  
+    
+    # create an empty environment file
+    sudo touch /etc/default/kubelet
+
     sudo sed -i "s/.*PasswordAuthentication.*/PasswordAuthentication yes/g" /etc/ssh/sshd_config
     systemctl enable sshd.servicekubectl get nodes
     systemctl restart sshd.service
