@@ -53,7 +53,7 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
         https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
-    #install kubernetes tools
+    #   install prerequisites
     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     yum -y update
     yum install -y yum-utils device-mapper-persistent-data lvm2 net-tools sshpass openssh-server install docker-ce docker-ce-cli containerd.io
@@ -63,16 +63,16 @@ EOF
     sudo service sshd restart   
     systemctl restart sshd.service
 
+    # Set SELinux in permissive mode (effectively disabling it)
+    setenforce 0
+    sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+
     # run docker commands as vagrant user (sudo not required)
     usermod -aG docker vagrant
     systemctl enable docker.service
     systemctl start docker
 
     yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
-
-    # Set SELinux in permissive mode (effectively disabling it)
-    setenforce 0
-    sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
     
     # enable kubelet
     systemctl enable --now kubelet
@@ -92,6 +92,9 @@ EOF
 SCRIPT
 
 $configureMaster = <<-SCRIPT
+
+    # pull k8s images
+    kubeadm config images pull
 
     # create an empty environment file
     sudo touch /etc/default/kubelet
@@ -125,12 +128,18 @@ $configureMaster = <<-SCRIPT
 SCRIPT
 
 $configureNode = <<-SCRIPT
-    echo "This is a worker"
+    
+echo "This is a worker"
 
-    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.122.50:~/kubeadm_join_cmd.sh   .
+    #configure kubectl
+    mkdir ~/.kube
+    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@k8s-master:~/.kube/config .kube/config
+    
+    # join a worker node to the cluster
+    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@k8s-master:~/kubeadm_join_cmd.sh .
     sudo sh ./kubeadm_join_cmd.sh
 
-    SCRIPT
+SCRIPT
 
 Vagrant.configure("2") do |config|
 
