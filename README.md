@@ -6,8 +6,8 @@
 
 ## Pre-requisites
 
- * **[Vagrant](https://www.vagrantup.com)**
  * **[libvirt](https://wiki.centos.org/HowTos/KVM)**
+ * **[Vagrant](https://www.vagrantup.com)**
 
 ## How to Run
 
