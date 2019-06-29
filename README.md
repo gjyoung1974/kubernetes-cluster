@@ -22,5 +22,5 @@ sudo vagrant up --no-parallel
 Execute the following command to remove the virtual machines created for the Kubernetes cluster.
 
 ```sh
-vagrant destroy -f
+sudo vagrant destroy -f
 ```
