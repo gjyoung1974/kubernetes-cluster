@@ -2,7 +2,7 @@
 
 - Set up a very basic local Kubernetes cluster using Kubeadm
 - For testing k8s infra components
-- Hosted on KVM2/Centos
+- Hosted on KVM2/(libvirt) on Centos
     (should be portable to other distros)     
 
 ## Pre-requisites
