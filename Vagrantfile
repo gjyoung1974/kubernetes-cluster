@@ -7,7 +7,7 @@ servers = [
         :type => "master",
         :box => "centos/7",
         :box_version => "1902.01",
-        :eth0 => "192.168.122.50",
+        :eth0 => "192.168.100.50",
         :mem => "2048",
         :cpu => "2"
     },
@@ -16,7 +16,7 @@ servers = [
         :type => "node",
         :box => "centos/7",
         :box_version => "1902.01",
-        :eth0 => "192.168.122.100",
+        :eth0 => "192.168.100.100",
         :mem => "2048",
         :cpu => "2"
     },
@@ -25,7 +25,7 @@ servers = [
         :type => "node",
         :box => "centos/7",
         :box_version => "1902.01",
-        :eth0 => "192.168.122.150",
+        :eth0 => "192.168.100.150",
         :mem => "2048",
         :cpu => "2"
     }
@@ -151,9 +151,9 @@ Vagrant.configure("2") do |config|
             config.vm.hostname = opts[:name]
 
             config.vm.network "private_network", type: "bridge",
-            dev: "virbr0",
+            dev: "virbr2",
             mode: "nat",
-            network_name: "default", ip: opts[:eth0]
+            network_name: "k8s", ip: opts[:eth0]
 
                 config.vm.provider :libvirt do |domain|
                     domain.memory = 2048
