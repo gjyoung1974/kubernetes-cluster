@@ -56,7 +56,7 @@ EOF
     #   install prerequisites
     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     yum -y update
-    yum install -y yum-utils device-mapper-persistent-data lvm2 net-tools sshpass openssh-server install docker-ce docker-ce-cli containerd.io
+    yum install -y yum-utils device-mapper-persistent-data lvm2 net-tools sshpass openssh-server install docker-ce docker-ce-cli containerd.io kubelet-1.14.3 kubeadm-1.14.3 kubectl-1.14.3 --disableexcludes=kubernetes
 
     # required for setting up passwordless ssh between guest VMs
     sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
@@ -72,7 +72,7 @@ EOF
     systemctl enable docker.service
     systemctl start docker
 
-    yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+    # yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
     
     # enable kubelet
     systemctl enable --now kubelet
@@ -94,7 +94,7 @@ SCRIPT
 $configureMaster = <<-SCRIPT
 
     # pull k8s images
-    kubeadm config images pull
+    kubeadm config --kubernetes-version=1.14.3 images pull
 
     # create an empty environment file
     sudo touch /etc/default/kubelet
@@ -105,7 +105,7 @@ $configureMaster = <<-SCRIPT
 
     # install k8s master
     HOST_NAME=$(hostname -s)
-    kubeadm init --apiserver-advertise-address=$IP_ADDR --apiserver-cert-extra-sans=$IP_ADDR  --node-name $HOST_NAME --pod-network-cidr=172.16.0.0/16
+    kubeadm init --kubernetes-version=1.14.3 --apiserver-advertise-address=$IP_ADDR --apiserver-cert-extra-sans=$IP_ADDR  --node-name $HOST_NAME --pod-network-cidr=172.16.0.0/16
 
     # copying credentials to regular user - vagrant
     sudo --user=vagrant mkdir -p /home/vagrant/.kube
@@ -138,7 +138,7 @@ echo "This is a worker"
     # join a worker node to the cluster
     sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.122.50:~/kubeadm_join_cmd.sh .
     sudo sh ./kubeadm_join_cmd.sh
-
+    
 SCRIPT
 
 Vagrant.configure("2") do |config|
