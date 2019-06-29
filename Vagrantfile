@@ -133,10 +133,10 @@ echo "This is a worker"
 
     #configure kubectl
     mkdir ~/.kube
-    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.122.50:~/.kube/config .kube/config
+    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.100.50:~/.kube/config .kube/config
     
     # join a worker node to the cluster
-    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.122.50:~/kubeadm_join_cmd.sh .
+    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.100.50:~/kubeadm_join_cmd.sh .
     sudo sh ./kubeadm_join_cmd.sh
     
 SCRIPT
