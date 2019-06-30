@@ -93,13 +93,14 @@ SCRIPT
 
 $configureMaster = <<-SCRIPT
 
+    echo "This is the master"
+
     # pull k8s images
     kubeadm config --kubernetes-version=1.14.3 images pull
 
     # create an empty environment file
     sudo touch /etc/default/kubelet
 
-    echo "This is the master"
     # ip of this box
     IP_ADDR=`ifconfig eth1 | grep Mask | awk '{print $2}'| cut -f2 -d:`
 
@@ -117,11 +118,7 @@ $configureMaster = <<-SCRIPT
     kubectl apply -f https://raw.githubusercontent.com/gjyoung1974/kubernetes-cluster/master/calico/rbac-kdd.yaml
     kubectl apply -f https://raw.githubusercontent.com/gjyoung1974/kubernetes-cluster/master/calico/calico.yaml
 
-    # required for setting up passwordless ssh between guest VMs
-    # sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
-    # sudo service sshd restart   
-    # systemctl restart sshd.service
-
+    # create a token for joining worker nodes
     kubeadm token create --print-join-command >> ./kubeadm_join_cmd.sh
     chmod +x ./kubeadm_join_cmd.sh
 
@@ -129,10 +126,10 @@ SCRIPT
 
 $configureNode = <<-SCRIPT
     
-echo "This is a worker"
+    echo "This is a worker"
 
     #configure kubectl
-    mkdir -p $HOME/.kube
+    sudo --user=vagrant mkdir -p /home/vagrant/.kube
     sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@k8s-master:/etc/kubernetes/admin.conf $HOME/.kube/config
     
     # join a worker node to the cluster
