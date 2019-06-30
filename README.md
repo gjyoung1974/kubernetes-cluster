@@ -4,6 +4,10 @@
 - For testing k8s infra components
 - Hosted on KVM2/(libvirt) on Centos
     (should be portable to other distros)     
+    
+## TODO:
+-   Port this from Vagrant to Terraform
+[terraform-provider-libvirt](https://github.com/dmacvicar/terraform-provider-libvirt/tree/master/examples/v0.12/coreos)     
 
 ## Pre-requisites
 
