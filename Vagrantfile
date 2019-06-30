@@ -70,12 +70,38 @@ EOF
     setenforce 0
     sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
+    #**
+    # Switch Cgroupfs to be managed by systemd
+
+    ## Create /etc/docker directory.
+    mkdir /etc/docker
+
+# Setup daemon.
+cat > /etc/docker/daemon.json <<EOF
+{
+    "exec-opts": ["native.cgroupdriver=systemd"],
+    "log-driver": "json-file",
+    "log-opts": {
+    "max-size": "100m"
+    },
+    "storage-driver": "overlay2",
+    "storage-opts": [
+    "overlay2.override_kernel_check=true"
+    ]
+}
+EOF
+    
+    mkdir -p /etc/systemd/system/docker.service.d
+    
+    #** end switch to systemd
+
     # run docker commands as vagrant user (sudo not required)
     usermod -aG docker vagrant
     systemctl enable docker.service
-    systemctl start docker
 
-    # yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+    # Restart Docker
+    systemctl daemon-reload
+    systemctl restart docker
     
     # enable kubelet
     systemctl enable --now kubelet
