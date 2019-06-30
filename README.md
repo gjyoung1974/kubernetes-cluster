@@ -1,4 +1,4 @@
-# KVM2 Kubernetes cluster
+# Libvirt (KVM2) Kubernetes cluster
 
 - Set up a very basic local Kubernetes cluster using Kubeadm
 - For testing k8s infra components
