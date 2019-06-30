@@ -133,7 +133,7 @@ $configureNode = <<-SCRIPT
 
     #configure kubectl
     sudo --user=vagrant mkdir -p /home/vagrant/.kube
-    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@k8s-master:/etc/kubernetes/admin.conf $HOME/.kube/config
+    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@k8s-master:/home/vagrant/.kube/config /home/vagrant/.kube/config
     
     # join a worker node to the cluster
     sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@k8s-master:~/kubeadm_join_cmd.sh .
