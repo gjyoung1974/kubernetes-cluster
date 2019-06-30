@@ -1,6 +1,9 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+## TODO: Change the runtime to systemd 
+## https://kubernetes.io/docs/setup/production-environment/container-runtimes/
+
 servers = [
     {
         :name => "k8s-master",
