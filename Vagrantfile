@@ -7,7 +7,7 @@ servers = [
         :type => "master",
         :box => "centos/7",
         :box_version => "1902.01",
-        :eth0 => "192.168.100.50",
+        :eth1 => "192.168.100.50",
         :mem => "2048",
         :cpu => "2"
     },
@@ -16,7 +16,7 @@ servers = [
         :type => "node",
         :box => "centos/7",
         :box_version => "1902.01",
-        :eth0 => "192.168.100.100",
+        :eth1 => "192.168.100.100",
         :mem => "2048",
         :cpu => "2"
     },
@@ -25,7 +25,7 @@ servers = [
         :type => "node",
         :box => "centos/7",
         :box_version => "1902.01",
-        :eth0 => "192.168.100.150",
+        :eth1 => "192.168.100.150",
         :mem => "2048",
         :cpu => "2"
     }
@@ -84,7 +84,7 @@ EOF
     sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
     # ip of this box
-    IP_ADDR=`ifconfig eth0 | grep Mask | awk '{print $2}'| cut -f2 -d:`
+    IP_ADDR=`ifconfig eth1 | grep Mask | awk '{print $2}'| cut -f2 -d:`
     set node-ip
     sudo sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR" /etc/default/kubelet
     sudo systemctl restart kubelet
@@ -101,7 +101,7 @@ $configureMaster = <<-SCRIPT
 
     echo "This is the master"
     # ip of this box
-    IP_ADDR=`ifconfig eth0 | grep Mask | awk '{print $2}'| cut -f2 -d:`
+    IP_ADDR=`ifconfig eth1 | grep Mask | awk '{print $2}'| cut -f2 -d:`
 
     # install k8s master
     HOST_NAME=$(hostname -s)
@@ -132,11 +132,11 @@ $configureNode = <<-SCRIPT
 echo "This is a worker"
 
     #configure kubectl
-    mkdir ~/.kube
-    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.100.50:~/.kube/config .kube/config
+    mkdir -p $HOME/.kube
+    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@k8s-master:/etc/kubernetes/admin.conf $HOME/.kube/config
     
     # join a worker node to the cluster
-    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.100.50:~/kubeadm_join_cmd.sh .
+    sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@k8s-master:~/kubeadm_join_cmd.sh .
     sudo sh ./kubeadm_join_cmd.sh
     
 SCRIPT
@@ -153,7 +153,7 @@ Vagrant.configure("2") do |config|
             config.vm.network "private_network", type: "bridge",
             dev: "virbr2",
             mode: "nat",
-            network_name: "k8s", ip: opts[:eth0]
+            network_name: "k8s", ip: opts[:eth1]
 
                 config.vm.provider :libvirt do |domain|
                     domain.memory = 2048
