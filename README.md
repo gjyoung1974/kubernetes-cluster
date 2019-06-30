@@ -9,6 +9,12 @@
 -   Port this from Vagrant to Terraform
 [terraform-provider-libvirt](https://github.com/dmacvicar/terraform-provider-libvirt/tree/master/examples/v0.12/coreos)     
 
+## This installs
+ * **3 node k8s cluster (1x Master, 2x workers)**
+ * **Standard compliment of k8 components, API, Controller, Scheduler, Proxy, Etcd, DNS, etc...**
+ * **Ingress controller**
+ * **Calico network policies**
+
 ## Pre-requisites
 
  * **[libvirt](https://wiki.centos.org/HowTos/KVM)**
