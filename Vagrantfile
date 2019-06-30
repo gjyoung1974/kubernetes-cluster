@@ -17,7 +17,7 @@ servers = [
         :box => "centos/7",
         :box_version => "1902.01",
         :eth1 => "192.168.100.100",
-        :mem => "2048",
+        :mem => "4096",
         :cpu => "2"
     },
     {
@@ -26,7 +26,7 @@ servers = [
         :box => "centos/7",
         :box_version => "1902.01",
         :eth1 => "192.168.100.150",
-        :mem => "2048",
+        :mem => "4096",
         :cpu => "2"
     }
 ]
@@ -180,8 +180,8 @@ Vagrant.configure("2") do |config|
             network_name: "k8s", ip: opts[:eth1]
 
                 config.vm.provider :libvirt do |domain|
-                    domain.memory = 2048
-                    domain.cpus = 2
+                    domain.memory = opts[:mem]
+                    domain.cpus = opts[:cpu]
                     domain.nested = true
                     domain.volume_cache = 'none'
                     
