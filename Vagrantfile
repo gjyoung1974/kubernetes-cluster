@@ -1,9 +1,6 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-## TODO: Change the runtime to systemd 
-## https://kubernetes.io/docs/setup/production-environment/container-runtimes/
-
 servers = [
     {
         :name => "k8s-master",
@@ -35,7 +32,7 @@ servers = [
 ]
 
 # This script installs Kubernetes via kubeadm after each box gets provisioned
-$configureBox = <<-SCRIPT
+$configBase = <<-SCRIPT
 
     # stop packages.cloud.google.com from transiting via
     sysctl -w net.ipv6.conf.all.disable_ipv6=1
@@ -120,7 +117,7 @@ EOF
 
 SCRIPT
 
-$configureMaster = <<-SCRIPT
+$Master = <<-SCRIPT
 
     echo "This is the master"
 
@@ -153,7 +150,7 @@ $configureMaster = <<-SCRIPT
 
 SCRIPT
 
-$configureNode = <<-SCRIPT
+$Node = <<-SCRIPT
     
     echo "This is a worker"
 
@@ -190,12 +187,12 @@ Vagrant.configure("2") do |config|
                     
                 end
 
-            config.vm.provision "shell", inline: $configureBox
+            config.vm.provision "shell", inline: $configBase
 
             if opts[:type] == "master"
-                config.vm.provision "shell", inline: $configureMaster
+                config.vm.provision "shell", inline: $Master
             else
-                config.vm.provision "shell", inline: $configureNode
+                config.vm.provision "shell", inline: $Node
             end
 
         end
