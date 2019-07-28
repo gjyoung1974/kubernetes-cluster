@@ -39,6 +39,14 @@ $configBase = <<-SCRIPT
     sysctl -w net.ipv6.conf.default.disable_ipv6=1
     echo "ip_resolve=4" >> /etc/yum.conf
 
+    modprobe br_netfilter
+
+    echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
+    echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
+    echo 1 > /proc/sys/net/bridge/bridge-nf-call-ip6tables
+
+    sudo sysctl -p
+
     ## Install updates
     rpm --import https://download.docker.com/linux/centos/gpg
     rpm --import https://packages.cloud.google.com/yum/doc/yum-key.gpg
@@ -56,7 +64,7 @@ EOF
     #   install prerequisites
     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     yum -y update
-    yum install -y yum-utils device-mapper-persistent-data lvm2 net-tools sshpass openssh-server install docker-ce docker-ce-cli containerd.io kubelet-1.14.3 kubeadm-1.14.3 kubectl-1.14.3 --disableexcludes=kubernetes
+    yum install -y yum-utils device-mapper-persistent-data lvm2 net-tools sshpass openssh-server install docker-ce-18.09.0 docker-ce-cli-18.09.0 containerd.io kubelet-1.14.3 kubeadm-1.14.3 kubectl-1.14.3 --disableexcludes=kubernetes
 
     # required for setting up passwordless ssh between guest VMs
     sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
@@ -120,6 +128,11 @@ SCRIPT
 $Master = <<-SCRIPT
 
     echo "This is the master"
+    
+    modprobe br_netfilter
+    echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
+    echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
+    echo 1 > /proc/sys/net/bridge/bridge-nf-call-ip6tables
 
     # pull k8s images
     kubeadm config --kubernetes-version=1.14.3 images pull
@@ -184,6 +197,7 @@ Vagrant.configure("2") do |config|
                     domain.cpus = opts[:cpu]
                     domain.nested = true
                     domain.volume_cache = 'none'
+                    domain.storage_pool_name = "vms"
                     
                 end
 
