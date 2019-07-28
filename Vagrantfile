@@ -128,7 +128,7 @@ SCRIPT
 $Master = <<-SCRIPT
 
     echo "This is the master"
-    
+
     modprobe br_netfilter
     echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
     echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
@@ -166,6 +166,11 @@ SCRIPT
 $Node = <<-SCRIPT
     
     echo "This is a worker"
+
+    modprobe br_netfilter
+    echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
+    echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
+    echo 1 > /proc/sys/net/bridge/bridge-nf-call-ip6tables
 
     #configure kubectl
     sudo --user=vagrant mkdir -p /home/vagrant/.kube
