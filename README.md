@@ -20,6 +20,9 @@
  * **[libvirt](https://wiki.centos.org/HowTos/KVM)**
  * **[Vagrant](https://www.vagrantup.com)**
  * **[vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)**
+ ```sh
+    $ vagrant plugin install vagrant-libvirt
+```
 
 ## How to Run
 
