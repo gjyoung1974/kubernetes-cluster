@@ -55,7 +55,7 @@ EOF
     #   install prerequisites
     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     yum -y update
-    yum install -y yum-utils device-mapper-persistent-data kernel-headers lvm2 net-tools sshpass openssh-server install docker-ce-18.09.0 docker-ce-cli-18.09.0 containerd.io kubelet-1.18.2 kubeadm-1.18.2 kubectl-1.18.2 --disableexcludes=kubernetes
+    yum install -y yum-utils device-mapper-persistent-data lvm2 net-tools sshpass openssh-server install docker-ce-18.09.0 docker-ce-cli-18.09.0 containerd.io kubelet-1.14.10 kubeadm-1.14.10 kubectl-1.14.10 --disableexcludes=kubernetes
 
     # required for setting up passwordless ssh between guest VMs
     sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
@@ -127,7 +127,7 @@ $Master = <<-SCRIPT
     echo 1 > /proc/sys/net/bridge/bridge-nf-call-ip6tables
 
     # pull k8s images
-    kubeadm config --kubernetes-version=1.18.2 images pull
+    kubeadm config --kubernetes-version=1.14.10 images pull
 
     # create an empty environment file
     sudo touch /etc/default/kubelet
@@ -137,7 +137,7 @@ $Master = <<-SCRIPT
 
     # install k8s master
     HOST_NAME=$(hostname -s)
-    kubeadm init --kubernetes-version=1.18.2 --apiserver-advertise-address=$IP_ADDR --apiserver-cert-extra-sans=$IP_ADDR  --node-name $HOST_NAME --pod-network-cidr=172.16.0.0/16
+    kubeadm init --kubernetes-version=1.14.10 --apiserver-advertise-address=$IP_ADDR --apiserver-cert-extra-sans=$IP_ADDR  --node-name $HOST_NAME --pod-network-cidr=172.16.0.0/16
 
     # copying credentials to regular user - vagrant
     sudo --user=vagrant mkdir -p /home/vagrant/.kube
