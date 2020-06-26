@@ -3,7 +3,7 @@
 - Set up a very basic local Kubernetes cluster using Kubeadm
 - For testing k8s infra components
 - Hosted on [libvirt](https://libvirt.org/): /(KVM2) on Centos     
-    (should be portable to other distros)     
+    (Other distros work also)     
     
 ## TODO:
 -   Port this from Vagrant to Terraform
